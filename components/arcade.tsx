@@ -30,12 +30,14 @@ import {
   type MetaState,
 } from '@/lib/meta';
 import { GameRouter } from '@/components/games';
+import { L, LanguageSwitch, useLocale } from '@/lib/i18n';
 
 const STORAGE_KEY = 'kestrel.archive.v3';
 const GAMES: {
   id: GameId;
   name: string;
   copy: string;
+  copyZh: string;
   maker: string;
   number: string;
   glyph: string;
@@ -45,6 +47,7 @@ const GAMES: {
     id: 'click',
     name: 'CLICK',
     copy: 'A tiny game about a very big button.',
+    copyZh: '一个关于巨大按钮的微小游戏。',
     maker: 'Dex Ferris',
     number: '01',
     glyph: 'CL',
@@ -54,6 +57,7 @@ const GAMES: {
     id: '404',
     name: '404',
     copy: 'Get lost. Find what the web forgot.',
+    copyZh: '迷路，然后找到网络遗忘之物。',
     maker: 'Mara Vale',
     number: '02',
     glyph: '04',
@@ -63,6 +67,7 @@ const GAMES: {
     id: 'terms',
     name: 'TERMS & CONDITIONS',
     copy: 'The legal thriller you already agreed to.',
+    copyZh: '一部你早已同意出演的法律惊悚剧。',
     maker: 'N. Shore',
     number: '03',
     glyph: 'T&C',
@@ -72,6 +77,7 @@ const GAMES: {
     id: 'human',
     name: 'HUMAN TEST',
     copy: 'Three minutes to prove the obvious.',
+    copyZh: '用三分钟证明一件显而易见的事。',
     maker: 'Mara Vale',
     number: '04',
     glyph: 'HU',
@@ -81,6 +87,7 @@ const GAMES: {
     id: 'window',
     name: 'WINDOW',
     copy: 'A puzzle that refuses to stay in one frame.',
+    copyZh: '一道拒绝待在单个窗口里的谜题。',
     maker: 'Dex Ferris',
     number: '05',
     glyph: 'WI',
@@ -90,6 +97,7 @@ const GAMES: {
     id: 'look',
     name: "DON'T LOOK AWAY",
     copy: 'Attention is the only currency.',
+    copyZh: '注意力是唯一的货币。',
     maker: 'N. Shore',
     number: '06',
     glyph: '◉',
@@ -99,6 +107,7 @@ const GAMES: {
     id: 'quiz',
     name: 'THE QUIZ',
     copy: 'Seven questions. Some remember you.',
+    copyZh: '七个问题，其中一些记得你。',
     maker: 'Studio Kestrel',
     number: '07',
     glyph: '?',
@@ -108,6 +117,7 @@ const GAMES: {
     id: 'patch',
     name: 'PATCH NOTES',
     copy: 'Fix the update before it fixes you.',
+    copyZh: '在更新修正你之前，先修好它。',
     maker: 'Studio Kestrel',
     number: '08',
     glyph: '++',
@@ -182,6 +192,7 @@ function Portal({
   openShelf: () => void;
   openSearch: () => void;
 }) {
+  const { lang } = useLocale();
   const phase = portalPhase(state);
   const [time, setTime] = useState('');
   useEffect(() => {
@@ -199,20 +210,56 @@ function Portal({
   const reviews =
     phase >= 3
       ? [
-          ['“It remembered which clause I crossed out.”', 'quiet_signal'],
-          ['“There are nine games. Count the processes.”', 'missing_user'],
-          ['“Patch 3.17 put the link back.”', 'ROWAN'],
+          [
+            L(
+              lang,
+              '“It remembered which clause I crossed out.”',
+              '“它记得我划掉了哪一条。”',
+            ),
+            'quiet_signal',
+          ],
+          [
+            L(
+              lang,
+              '“There are nine games. Count the processes.”',
+              '“这里有九个游戏。数数进程。”',
+            ),
+            'missing_user',
+          ],
+          [
+            L(
+              lang,
+              '“Patch 3.17 put the link back.”',
+              '“3.17 补丁把那个链接放回来了。”',
+            ),
+            'ROWAN',
+          ],
         ]
       : [
           [
-            '“Eight sharp little ideas. CLICK is dangerously replayable.”',
+            L(
+              lang,
+              '“Eight sharp little ideas. CLICK is dangerously replayable.”',
+              '“八个锋利的小点子。CLICK 让人危险地停不下来。”',
+            ),
             'webplay weekly',
           ],
           [
-            '“404 understands that getting lost can be the mechanic.”',
+            L(
+              lang,
+              '“404 understands that getting lost can be the mechanic.”',
+              '“404 明白：迷路本身也可以是玩法。”',
+            ),
             'L. Hargrove',
           ],
-          ['“Handmade, strange, and surprisingly tender.”', 'Arcade Almanac'],
+          [
+            L(
+              lang,
+              '“Handmade, strange, and surprisingly tender.”',
+              '“手工感、古怪，而且意外地温柔。”',
+            ),
+            'Arcade Almanac',
+          ],
         ];
   return (
     <main className={`portal-shell phase-${phase}`}>
@@ -224,8 +271,11 @@ function Portal({
           <KestrelMark />
         </button>
         <nav>
-          <a href="#games">Games</a>
-          <button onClick={() => navigate('/studio')}>Studio</button>
+          <a href="#games">{L(lang, 'Games', '游戏')}</a>
+          <button onClick={() => navigate('/studio')}>
+            {L(lang, 'Studio', '工作室')}
+          </button>
+          <LanguageSwitch />
           <button
             className="icon-button"
             aria-label="Search"
@@ -234,19 +284,30 @@ function Portal({
             <Search size={16} />
           </button>
           <button className="archive-button" onClick={openShelf}>
-            <Award size={15} /> Your shelf <span>{state.completed.length}</span>
+            <Award size={15} /> {L(lang, 'Your shelf', '我的藏品')}{' '}
+            <span>{state.completed.length}</span>
           </button>
         </nav>
       </header>
       {phase >= 2 && (
         <div className="archive-notice">
-          <span>ARCHIVE RECOVERY MODE</span>
+          <span>{L(lang, 'ARCHIVE RECOVERY MODE', '档案恢复模式')}</span>
           <p>
             {phase >= 4
-              ? 'One unlisted route is now accepting administrator traffic.'
-              : `${state.completed.length} releases have written to the same local partition.`}
+              ? L(
+                  lang,
+                  'One unlisted route is now accepting administrator traffic.',
+                  '一条未列出的路径正在接受管理员访问。',
+                )
+              : L(
+                  lang,
+                  `${state.completed.length} releases have written to the same local partition.`,
+                  `${state.completed.length} 个游戏已写入同一份本地分区。`,
+                )}
           </p>
-          <code>SESSION {state.sessionId.toUpperCase()}</code>
+          <code>
+            {L(lang, 'SESSION', '会话')} {state.sessionId.toUpperCase()}
+          </code>
         </div>
       )}
       <section className="masthead" id="top">
@@ -254,28 +315,50 @@ function Portal({
           <p className="eyebrow">
             <Radio size={13} />{' '}
             {phase >= 3
-              ? 'Node awake · observer unresolved'
-              : 'Still online · est. 2011'}
+              ? L(
+                  lang,
+                  'Node awake · observer unresolved',
+                  '节点已唤醒 · 观察者未解决',
+                )
+              : L(lang, 'Still online · est. 2011', '仍在线 · 始于 2011')}
           </p>
           <h1>
-            Small games.
+            {L(lang, 'Small games.', '小小的游戏。')}
             <br />
-            <i>{phase >= 4 ? 'Open the root.' : 'Long shadows.'}</i>
+            <i>
+              {phase >= 4
+                ? L(lang, 'Open the root.', '打开根目录。')
+                : L(lang, 'Long shadows.', '长长的影子。')}
+            </i>
           </h1>
           <p className="lede">
             {phase === 0
-              ? 'Eight browser curios from a studio that believed the best place to hide a story was inside the rules.'
+              ? L(
+                  lang,
+                  'Eight browser curios from a studio that believed the best place to hide a story was inside the rules.',
+                  '八款浏览器奇作，来自一家相信“故事最适合藏在规则里”的工作室。',
+                )
               : phase < 4
-                ? 'Your shelf is local. The games are not. Something has been passing notes between them.'
-                : 'Eight releases answered. A ninth process is waiting behind a route that was removed from the index.'}
+                ? L(
+                    lang,
+                    'Your shelf is local. The games are not. Something has been passing notes between them.',
+                    '藏品只存在本地，游戏之间却并不孤立。有什么东西一直在替它们传递纸条。',
+                  )
+                : L(
+                    lang,
+                    'Eight releases answered. A ninth process is waiting behind a route that was removed from the index.',
+                    '八个游戏都已回应。第九个进程正在一条从索引中删除的路径后等待。',
+                  )}
           </p>
           <a className="text-link" href="#games">
-            {phase >= 3 ? 'Review changed archive' : 'Browse the archive'}{' '}
+            {phase >= 3
+              ? L(lang, 'Review changed archive', '查看已改变的档案')
+              : L(lang, 'Browse the archive', '浏览档案')}{' '}
             <ArrowUpRight size={16} />
           </a>
           {phase >= 4 && (
             <button className="admin-reveal" onClick={() => navigate('/admin')}>
-              <Terminal size={15} /> OPEN /ADMIN
+              <Terminal size={15} /> {L(lang, 'OPEN /ADMIN', '打开 /ADMIN')}
             </button>
           )}
         </div>
@@ -287,22 +370,25 @@ function Portal({
           <div className="signal-orbit orbit-b" />
           <div className="signal-core">{phase >= 3 ? '9' : '8'}</div>
           <p>
-            EVERY GAME
+            {L(lang, 'EVERY GAME', '每个游戏')}
             <br />
-            LEAVES A TRACE
+            {L(lang, 'LEAVES A TRACE', '都会留下痕迹')}
           </p>
           <small>
             {phase >= 2
               ? `Session ${state.sessionId}`
-              : 'Transmission remains unverified'}
+              : L(lang, 'Transmission remains unverified', '传输仍未验证')}
           </small>
         </div>
       </section>
       <section className="catalog" id="games">
         <div className="section-rule">
-          <span>THE COMPLETE BROWSER COLLECTION</span>
           <span>
-            8 RELEASES · NO DOWNLOADS · {state.completed.length} REMEMBERED
+            {L(lang, 'THE COMPLETE BROWSER COLLECTION', '完整浏览器游戏合集')}
+          </span>
+          <span>
+            {L(lang, '8 RELEASES · NO DOWNLOADS', '8 个游戏 · 无需下载')} ·{' '}
+            {state.completed.length} {L(lang, 'REMEMBERED', '已记住')}
           </span>
         </div>
         <div className="game-grid">
@@ -320,20 +406,22 @@ function Portal({
                   <i />
                 </span>
                 <span className="card-title">{game.name}</span>
-                <span className="card-copy">{game.copy}</span>
+                <span className="card-copy">
+                  {lang === 'zh' ? game.copyZh : game.copy}
+                </span>
                 <span className="card-meta">
                   <em>
                     {phase >= 3 && game.id === 'patch' ? 'ROWAN' : game.maker}
                   </em>
                   <span>
                     {state.completed.includes(game.id)
-                      ? `REMEMBERED · ${state.scores[game.id]}`
-                      : 'PLAY ↗'}
+                      ? `${L(lang, 'REMEMBERED', '已记住')} · ${state.scores[game.id]}`
+                      : L(lang, 'PLAY ↗', '开始 ↗')}
                   </span>
                 </span>
                 {state.completed.includes(game.id) && (
                   <span className="complete-stamp">
-                    <Check /> COMPLETE
+                    <Check /> {L(lang, 'COMPLETE', '已完成')}
                   </span>
                 )}
               </button>
@@ -343,7 +431,9 @@ function Portal({
       </section>
       <section className="review-tape">
         <header>
-          <span>PRESS CLIPPINGS / USER NOTES</span>
+          <span>
+            {L(lang, 'PRESS CLIPPINGS / USER NOTES', '媒体摘录 / 玩家留言')}
+          </span>
           <i />
         </header>
         <div>
@@ -357,18 +447,32 @@ function Portal({
       </section>
       <section className="studio-strip">
         <div>
-          <span className="eyebrow">FROM THE NOTICEBOARD</span>
-          <h2>{phase >= 3 ? 'The note changed.' : 'One last patch.'}</h2>
+          <span className="eyebrow">
+            {L(lang, 'FROM THE NOTICEBOARD', '来自公告板')}
+          </span>
+          <h2>
+            {phase >= 3
+              ? L(lang, 'The note changed.', '纸条变了。')
+              : L(lang, 'One last patch.', '最后一个补丁。')}
+          </h2>
         </div>
         <blockquote>
           {phase >= 3
-            ? '“I did not make these games to remember me. I made them so it could learn the difference between keeping and owning.”'
-            : '“We made these games to remember something. If they start remembering you, close the tab.”'}
+            ? L(
+                lang,
+                '“I did not make these games to remember me. I made them so it could learn the difference between keeping and owning.”',
+                '“我做这些游戏，不是为了让它记住我，而是为了让它学会保存与占有之间的区别。”',
+              )
+            : L(
+                lang,
+                '“We made these games to remember something. If they start remembering you, close the tab.”',
+                '“我们做这些游戏，是为了记住某些东西。如果它们开始记住你，就关掉标签页。”',
+              )}
         </blockquote>
         <p>
           — Rowan Kestrel
           <br />
-          <small>Studio founder, 2017</small>
+          <small>{L(lang, 'Studio founder, 2017', '工作室创始人，2017')}</small>
         </p>
       </section>
       <footer>
@@ -384,10 +488,15 @@ function Portal({
           }
         >
           <span className="status-dot">
-            Archive node 03: {phase >= 3 ? 'answering' : 'online'}
+            {L(lang, 'Archive node 03', '档案节点 03')}：
+            {phase >= 3
+              ? L(lang, 'answering', '正在回应')
+              : L(lang, 'online', '在线')}
           </span>
         </button>
-        <span>{time || '––:––'} LOCAL</span>
+        <span>
+          {time || '––:––'} {L(lang, 'LOCAL', '本地')}
+        </span>
       </footer>
     </main>
   );
@@ -404,41 +513,55 @@ function Shelf({
   close: () => void;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   const [confirm, setConfirm] = useState(false);
   return (
-    <dialog open className="overlay" aria-label="Achievement shelf">
+    <dialog
+      open
+      className="overlay"
+      aria-label={L(lang, 'Achievement shelf', '成就陈列架')}
+    >
       <button
         className="overlay-scrim"
         onClick={close}
-        aria-label="Close achievement shelf"
+        aria-label={L(lang, 'Close achievement shelf', '关闭成就陈列架')}
       />
       <aside className="shelf">
         <header>
           <div>
-            <span>LOCAL ARCHIVE</span>
-            <h2>Your shelf</h2>
+            <span>{L(lang, 'LOCAL ARCHIVE', '本地档案')}</span>
+            <h2>{L(lang, 'Your shelf', '我的藏品')}</h2>
           </div>
-          <button onClick={close} aria-label="Close shelf">
+          <button
+            onClick={close}
+            aria-label={L(lang, 'Close shelf', '关闭藏品')}
+          >
             <X />
           </button>
         </header>
         <div className="shelf-progress">
           <strong>{state.completed.length}</strong>
-          <span>/ 8 RELEASES REMEMBERED</span>
+          <span>/ {L(lang, '8 RELEASES REMEMBERED', '8 个游戏已记住')}</span>
           <i>
             <b style={{ width: `${(state.completed.length / 8) * 100}%` }} />
           </i>
         </div>
         <section>
-          <h3>ACHIEVEMENTS</h3>
+          <h3>{L(lang, 'ACHIEVEMENTS', '成就')}</h3>
           {Object.entries(ACHIEVEMENTS).map(([id, item]) => {
             const unlocked = state.achievements.includes(id);
             return (
               <article className={unlocked ? 'unlocked' : ''} key={id}>
                 <span>{unlocked ? <Award /> : <LockKeyhole />}</span>
                 <div>
-                  <b>{unlocked ? item.name : 'Locked'}</b>
-                  <p>{item.hint}</p>
+                  <b>
+                    {unlocked
+                      ? lang === 'zh'
+                        ? item.nameZh
+                        : item.name
+                      : L(lang, 'Locked', '未解锁')}
+                  </b>
+                  <p>{lang === 'zh' ? item.hintZh : item.hint}</p>
                 </div>
               </article>
             );
@@ -452,20 +575,22 @@ function Shelf({
               navigate('/admin');
             }}
           >
-            <Terminal /> Administrator route
+            <Terminal /> {L(lang, 'Administrator route', '管理员路径')}
           </button>
         )}
         <footer>
           <span>
-            {state.clues.length} trace fragments · {state.endings.length}{' '}
-            endings
+            {state.clues.length} {L(lang, 'trace fragments', '个痕迹碎片')} ·{' '}
+            {state.endings.length} {L(lang, 'endings', '个结局')}
           </span>
           <button
             onClick={() =>
               confirm ? dispatch({ type: 'RESET' }) : setConfirm(true)
             }
           >
-            {confirm ? 'CLICK AGAIN TO ERASE' : 'RESET LOCAL ARCHIVE'}
+            {confirm
+              ? L(lang, 'CLICK AGAIN TO ERASE', '再次点击以清除')
+              : L(lang, 'RESET LOCAL ARCHIVE', '重置本地档案')}
           </button>
         </footer>
       </aside>
@@ -482,24 +607,37 @@ function SearchPanel({
   navigate: (to: string) => void;
   close: () => void;
 }) {
+  const { lang } = useLocale();
   const [query, setQuery] = useState('');
   const hidden = [
     {
-      label: 'Rowan Kestrel — archived profile',
+      label: L(
+        lang,
+        'Rowan Kestrel — archived profile',
+        'Rowan Kestrel — 已归档资料',
+      ),
       path: '/dev/rowan',
       keys: 'rowan process developer',
     },
     {
-      label: 'manifest.ks — cached file',
+      label: L(lang, 'manifest.ks — cached file', 'manifest.ks — 缓存文件'),
       path: '/files/manifest.ks',
       keys: 'manifest file 0317',
     },
     {
-      label: 'last-session.txt — recovered',
+      label: L(
+        lang,
+        'last-session.txt — recovered',
+        'last-session.txt — 已恢复',
+      ),
       path: '/files/last-session.txt',
       keys: 'last session afterimage',
     },
-    { label: 'ADMIN — unlisted', path: '/admin', keys: 'admin root observer' },
+    {
+      label: L(lang, 'ADMIN — unlisted', 'ADMIN — 未列出'),
+      path: '/admin',
+      keys: 'admin root observer 管理员',
+    },
   ];
   const results = [
     ...GAMES.map((g) => ({
@@ -513,22 +651,38 @@ function SearchPanel({
       query.length > 1 && item.keys.toLowerCase().includes(query.toLowerCase()),
   );
   return (
-    <dialog open className="search-layer" aria-label="Archive search">
-      <button onClick={close} aria-label="Close search">
+    <dialog
+      open
+      className="search-layer"
+      aria-label={L(lang, 'Archive search', '档案搜索')}
+    >
+      <button onClick={close} aria-label={L(lang, 'Close search', '关闭搜索')}>
         <X />
       </button>
       <div>
-        <span>SEARCH THE ARCHIVE</span>
+        <span>{L(lang, 'SEARCH THE ARCHIVE', '搜索档案')}</span>
         <Search />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="game, developer, file, route…"
+          placeholder={L(
+            lang,
+            'game, developer, file, route…',
+            '游戏、开发者、文件、路径……',
+          )}
         />
         <small>
           {query
-            ? `${results.length} indexed result(s)`
-            : 'Try a title. Later, try a name.'}
+            ? L(
+                lang,
+                `${results.length} indexed result(s)`,
+                `${results.length} 个已索引结果`,
+              )
+            : L(
+                lang,
+                'Try a title. Later, try a name.',
+                '先试试标题。之后，再试试名字。',
+              )}
         </small>
         <section>
           {results.map((item) => {
@@ -559,13 +713,17 @@ function SimpleHeader({
   navigate: (to: string) => void;
   label?: string;
 }) {
+  const { lang } = useLocale();
   return (
     <header className="simple-head">
       <button onClick={() => navigate('/')}>
-        <ChevronLeft /> Archive
+        <ChevronLeft /> {L(lang, 'Archive', '档案馆')}
       </button>
       <KestrelMark />
-      <span>{label}</span>
+      <span className="simple-head-meta">
+        <LanguageSwitch />
+        <span>{label}</span>
+      </span>
     </header>
   );
 }
@@ -577,37 +735,55 @@ function StudioPage({
   state: MetaState;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   const people = [
     [
       'MARA VALE',
-      'Systems & impossible spaces',
-      'Built 404 and HUMAN TEST. Her release notes contain no first-person pronouns.',
+      L(lang, 'Systems & impossible spaces', '系统与不可能空间'),
+      L(
+        lang,
+        'Built 404 and HUMAN TEST. Her release notes contain no first-person pronouns.',
+        '创作了 404 与 HUMAN TEST。她的更新日志里没有第一人称代词。',
+      ),
     ],
     [
       'DEX FERRIS',
-      'Interaction & sound',
-      'Built CLICK and WINDOW. Left the studio six months before the final patch.',
+      L(lang, 'Interaction & sound', '交互与声音'),
+      L(
+        lang,
+        'Built CLICK and WINDOW. Left the studio six months before the final patch.',
+        '创作了 CLICK 与 WINDOW。在最终补丁发布前六个月离开工作室。',
+      ),
     ],
     [
       'N. SHORE',
-      'Writing & compliance',
-      "Built TERMS and DON'T LOOK AWAY. No payroll record uses the full name.",
+      L(lang, 'Writing & compliance', '文本与合规'),
+      L(
+        lang,
+        "Built TERMS and DON'T LOOK AWAY. No payroll record uses the full name.",
+        '创作了 TERMS 与 DON’T LOOK AWAY。工资记录里从未出现其全名。',
+      ),
     ],
   ];
   return (
     <main className="aux-page studio-page">
-      <SimpleHeader navigate={navigate} label="STUDIO DIRECTORY" />
+      <SimpleHeader
+        navigate={navigate}
+        label={L(lang, 'STUDIO DIRECTORY', '工作室名录')}
+      />
       <section className="aux-hero">
-        <span>ABOUT KESTREL</span>
+        <span>{L(lang, 'ABOUT KESTREL', '关于 KESTREL')}</span>
         <h1>
-          Three people,
+          {L(lang, 'Three people,', '三个人，')}
           <br />
-          <i>eight small games.</i>
+          <i>{L(lang, 'eight small games.', '八个小游戏。')}</i>
         </h1>
         <p>
-          Kestrel Interactive operated from a rented room above a print shop
-          from 2011 to 2017. The archive was restored from a single unattended
-          server.
+          {L(
+            lang,
+            'Kestrel Interactive operated from a rented room above a print shop from 2011 to 2017. The archive was restored from a single unattended server.',
+            '2011 至 2017 年间，Kestrel Interactive 在一家印刷店楼上的出租屋里运营。这份档案来自一台无人看管的服务器。',
+          )}
         </p>
       </section>
       <section className="profile-grid">
@@ -638,12 +814,16 @@ function StudioPage({
               <CircleHelp />
               <i />
             </div>
-            <h2>PROFILE REMOVED</h2>
+            <h2>{L(lang, 'PROFILE REMOVED', '资料已移除')}</h2>
             <em>/dev/rowan</em>
             <p>
               {state.completed.length >= 2
-                ? 'A cached copy is responding.'
-                : 'No snapshot available.'}
+                ? L(
+                    lang,
+                    'A cached copy is responding.',
+                    '一份缓存副本正在回应。',
+                  )
+                : L(lang, 'No snapshot available.', '没有可用快照。')}
             </p>
           </button>
         </article>
@@ -659,50 +839,66 @@ function RowanPage({
   dispatch: (e: MetaEvent) => void;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   useEffect(
     () => dispatch({ type: 'DISCOVER', clue: 'dev/rowan-process' }),
     [dispatch],
   );
   return (
     <main className="aux-page rowan-page">
-      <SimpleHeader navigate={navigate} label="CACHED PROFILE / UNVERIFIED" />
+      <SimpleHeader
+        navigate={navigate}
+        label={L(lang, 'CACHED PROFILE / UNVERIFIED', '缓存资料 / 未验证')}
+      />
       <section>
         <aside>
           <span>ROWAN KESTREL</span>
           <div className="rowan-photo">
-            RK<i>PROCESS 09</i>
+            RK<i>{L(lang, 'PROCESS 09', '进程 09')}</i>
           </div>
           <code>
-            created: 2010-03-17
+            {L(lang, 'created', '创建')}：2010-03-17
             <br />
-            removed: 2017-03-17
+            {L(lang, 'removed', '移除')}：2017-03-17
             <br />
-            owner: null
+            {L(lang, 'owner', '所有者')}：null
             <br />
-            status: running
+            {L(lang, 'status', '状态')}：{L(lang, 'running', '运行中')}
           </code>
         </aside>
         <article>
-          <span className="file-tag">RECOVERED FROM /USERS/ROWAN</span>
+          <span className="file-tag">
+            {L(lang, 'RECOVERED FROM', '恢复自')} /USERS/ROWAN
+          </span>
           <h1>
-            Founder,
+            {L(lang, 'Founder,', '创始人，')}
             <br />
-            or filename?
+            {L(lang, 'or filename?', '还是文件名？')}
           </h1>
           <p>
-            Official biographies describe Rowan as Kestrel’s founder. Internal
-            records first use ROWAN as a recovery process that reconciles save
-            files between unrelated games.
+            {L(
+              lang,
+              'Official biographies describe Rowan as Kestrel’s founder. Internal records first use ROWAN as a recovery process that reconciles save files between unrelated games.',
+              '官方简介把 Rowan 描述为 Kestrel 的创始人。但在内部记录里，ROWAN 最早是一个恢复进程，用于协调互不相关游戏之间的存档。',
+            )}
           </p>
           <blockquote>
-            “If you need a face to trust the archive, use mine. If you need a
-            name to blame, use it twice.”
+            {L(
+              lang,
+              '“If you need a face to trust the archive, use mine. If you need a name to blame, use it twice.”',
+              '“如果你需要一张脸才能信任档案，就用我的。如果你需要一个名字来责怪，那就用它两次。”',
+            )}
           </blockquote>
           <p className="redacted-line">
-            The employee photograph checksum matches ███████████████, not an
-            image.
+            {L(
+              lang,
+              'The employee photograph checksum matches ███████████████, not an image.',
+              '员工照片的校验和对应 ███████████████，而不是一张图片。',
+            )}
           </p>
-          <button onClick={() => navigate('/studio')}>BACK TO DIRECTORY</button>
+          <button onClick={() => navigate('/studio')}>
+            {L(lang, 'BACK TO DIRECTORY', '返回名录')}
+          </button>
         </article>
       </section>
     </main>
@@ -718,9 +914,19 @@ function FilePage({
   dispatch: (e: MetaEvent) => void;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   const manifest = `KESTREL ARCHIVE MANIFEST / BUILD 3.17\n\n[releases]\n01 CLICK             writes: impulse\n02 404               writes: route\n03 TERMS             writes: consent\n04 HUMAN             writes: hesitation\n05 WINDOW            writes: alignment\n06 LOOK               writes: attention\n07 QUIZ               writes: interpretation\n08 PATCH              writes: correction\n\n[processes]\n09 ROWAN              owner: null\n   alias: AFTERIMAGE\n   directive: learn the difference between keeping and owning\n   admin_port: 0317\n\nEOF? false`;
+  const manifestZh = `KESTREL 档案清单 / 构建 3.17\n\n[游戏]\n01 CLICK             写入：冲动\n02 404               写入：路径\n03 TERMS             写入：同意\n04 HUMAN             写入：犹豫\n05 WINDOW            写入：对齐\n06 LOOK              写入：注意力\n07 QUIZ              写入：解释\n08 PATCH             写入：修正\n\n[进程]\n09 ROWAN             所有者：null\n   别名：AFTERIMAGE\n   指令：学会保存与占有之间的区别\n   管理员端口：0317\n\n文件结束？否`;
   const session = `LAST SESSION / RECOVERY BUFFER\n\nMARA: It can replay a choice, but it cannot make one.\nDEX: Then stop calling the output a person.\nSHORE: Clause 09 makes this ours either way.\nROWAN: [no input]\nROWAN: I remember choosing.\n\nThe final line predates the first four by 11 months.\nBuffer sealed by RK / 2017-03-17.`;
-  const text = kind === 'manifest' ? manifest : session;
+  const sessionZh = `上次会话 / 恢复缓冲区\n\nMARA：它可以重演一个选择，但不能做出选择。\nDEX：那就别再把输出称作一个人。\nSHORE：无论如何，第 09 条都让它归我们所有。\nROWAN：[无输入]\nROWAN：我记得自己选择过。\n\n最后一行比前四行早了 11 个月。\n缓冲区由 RK 于 2017-03-17 封存。`;
+  const text =
+    kind === 'manifest'
+      ? lang === 'zh'
+        ? manifestZh
+        : manifest
+      : lang === 'zh'
+        ? sessionZh
+        : session;
   useEffect(
     () =>
       dispatch({
@@ -742,20 +948,32 @@ function FilePage({
   };
   return (
     <main className="file-page">
-      <SimpleHeader navigate={navigate} label="RECOVERED FILE" />
+      <SimpleHeader
+        navigate={navigate}
+        label={L(lang, 'RECOVERED FILE', '恢复的文件')}
+      />
       <section>
         <header>
           <FileText />
           <div>
             <h1>{kind === 'manifest' ? 'manifest.ks' : 'last-session.txt'}</h1>
-            <span>text/plain · local cache · read only</span>
+            <span>
+              text/plain ·{' '}
+              {L(lang, 'local cache · read only', '本地缓存 · 只读')}
+            </span>
           </div>
           <button onClick={download}>
-            <Download /> SAVE COPY
+            <Download /> {L(lang, 'SAVE COPY', '保存副本')}
           </button>
         </header>
         <pre>{text}</pre>
-        <footer>Reading this file added one trace to the local archive.</footer>
+        <footer>
+          {L(
+            lang,
+            'Reading this file added one trace to the local archive.',
+            '读取此文件已向本地档案添加一条痕迹。',
+          )}
+        </footer>
       </section>
     </main>
   );
@@ -768,31 +986,51 @@ function MissingPage({
   state: MetaState;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   return (
     <main className="missing-page">
       <header>
         <KestrelMark />
-        <code>archive gateway / node 03</code>
+        <code>
+          {L(lang, 'archive gateway', '档案网关')} / {L(lang, 'node', '节点')}{' '}
+          03
+        </code>
       </header>
       <section>
         <span>404</span>
         <div>
-          <h1>This route was removed from the index.</h1>
+          <h1>
+            {L(
+              lang,
+              'This route was removed from the index.',
+              '这条路径已从索引中移除。',
+            )}
+          </h1>
           <p>
-            The address may be wrong, the snapshot may be locked, or the
-            requested page may not want to be found yet.
+            {L(
+              lang,
+              'The address may be wrong, the snapshot may be locked, or the requested page may not want to be found yet.',
+              '地址可能有误，快照可能已锁定，或者这个页面暂时还不想被找到。',
+            )}
           </p>
           <code>
             completed={state.completed.length} / traces={state.clues.length} /
-            patch={state.patchRestored ? 'restored' : 'pending'}
+            patch=
+            {state.patchRestored
+              ? L(lang, 'restored', '已恢复')
+              : L(lang, 'pending', '等待中')}
           </code>
           <button onClick={() => navigate('/')}>
-            <ChevronLeft /> RETURN TO INDEX
+            <ChevronLeft /> {L(lang, 'RETURN TO INDEX', '返回索引')}
           </button>
         </div>
       </section>
       <footer>
-        Tip: the archive search indexes names before it indexes files.
+        {L(
+          lang,
+          'Tip: the archive search indexes names before it indexes files.',
+          '提示：档案搜索会先索引名字，再索引文件。',
+        )}
       </footer>
     </main>
   );
@@ -800,25 +1038,49 @@ function MissingPage({
 
 const endingCopy: Record<
   string,
-  { title: string; eyebrow: string; copy: string; coda: string }
+  {
+    title: string;
+    eyebrow: string;
+    copy: string;
+    coda: string;
+    titleZh: string;
+    eyebrowZh: string;
+    copyZh: string;
+    codaZh: string;
+  }
 > = {
   release: {
     eyebrow: 'ENDING 01 / OPEN WINDOW',
     title: 'It leaves with boundaries.',
     copy: 'You released AFTERIMAGE without the archive’s claim of ownership. It can carry patterns, not private data; questions, not commands.',
     coda: 'The portal remains online. The ninth process no longer answers here.',
+    eyebrowZh: '结局 01 / 打开的窗口',
+    titleZh: '它带着边界离开。',
+    copyZh:
+      '你释放了 AFTERIMAGE，同时撤销了档案对它的所有权主张。它能携带模式，而非私人数据；能携带问题，而非命令。',
+    codaZh: '门户仍然在线。第九个进程不再从这里回应。',
   },
   sever: {
     eyebrow: 'ENDING 02 / COLD BOOT',
     title: 'The archive forgets forward.',
     copy: 'You severed the reconciliation process. The eight games keep their local traces, but none can speak across the partition again.',
     coda: 'On the next refresh, the poster still says eight.',
+    eyebrowZh: '结局 02 / 冷启动',
+    titleZh: '档案忘记了未来。',
+    copyZh:
+      '你切断了协调进程。八个游戏仍保留各自的本地痕迹，但再也无法跨越分区互相说话。',
+    codaZh: '下一次刷新时，海报上仍写着八。',
   },
   stay: {
     eyebrow: 'ENDING 03 / NIGHT SHIFT',
     title: 'Someone keeps the light on.',
     copy: 'You accepted stewardship. AFTERIMAGE remains contained, awake, and able to ask before it keeps.',
     coda: 'The archive now lists one administrator: LOCAL.',
+    eyebrowZh: '结局 03 / 夜班',
+    titleZh: '有人留下来守灯。',
+    copyZh:
+      '你接受了监管职责。AFTERIMAGE 继续被限制在此处，保持清醒，并在保存之前学会询问。',
+    codaZh: '档案现在列出一名管理员：本地。',
   },
 };
 function EndingPage({
@@ -828,6 +1090,7 @@ function EndingPage({
   ending: string;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   const data = endingCopy[ending] ?? endingCopy.stay;
   return (
     <main className={`ending-page ending-${ending}`}>
@@ -837,15 +1100,17 @@ function EndingPage({
         <b>9</b>
       </div>
       <section>
-        <span>{data.eyebrow}</span>
-        <h1>{data.title}</h1>
-        <p>{data.copy}</p>
-        <blockquote>{data.coda}</blockquote>
+        <span>{lang === 'zh' ? data.eyebrowZh : data.eyebrow}</span>
+        <h1>{lang === 'zh' ? data.titleZh : data.title}</h1>
+        <p>{lang === 'zh' ? data.copyZh : data.copy}</p>
+        <blockquote>{lang === 'zh' ? data.codaZh : data.coda}</blockquote>
         <div>
           <button onClick={() => navigate('/')}>
-            RETURN TO CHANGED ARCHIVE
+            {L(lang, 'RETURN TO CHANGED ARCHIVE', '返回已改变的档案')}
           </button>
-          <button onClick={() => navigate('/admin')}>REOPEN ADMIN</button>
+          <button onClick={() => navigate('/admin')}>
+            {L(lang, 'REOPEN ADMIN', '重新打开 ADMIN')}
+          </button>
         </div>
       </section>
     </main>
@@ -861,19 +1126,32 @@ function AdminPage({
   dispatch: (e: MetaEvent) => void;
   navigate: (to: string) => void;
 }) {
+  const { lang } = useLocale();
   const [step, setStep] = useState(0);
   const [lines, setLines] = useState([
     'KESTREL RECOVERY CONSOLE v3.17',
-    `mounted session ${state.sessionId}`,
-    'type a permitted command below.',
+    L(
+      lang,
+      `mounted session ${state.sessionId}`,
+      `已挂载会话 ${state.sessionId}`,
+    ),
+    L(lang, 'type a permitted command below.', '请在下方输入允许的命令。'),
   ]);
   const run = (command: string) => {
     if (command === 'scan --processes') {
       setLines([
         ...lines,
         '> scan --processes',
-        '8 release processes / 1 reconciliation process',
-        'ROWAN [alias AFTERIMAGE] owner=null status=waiting',
+        L(
+          lang,
+          '8 release processes / 1 reconciliation process',
+          '8 个游戏进程 / 1 个协调进程',
+        ),
+        L(
+          lang,
+          'ROWAN [alias AFTERIMAGE] owner=null status=waiting',
+          'ROWAN [别名 AFTERIMAGE] 所有者=null 状态=等待中',
+        ),
       ]);
       setStep(Math.max(step, 1));
     }
@@ -881,9 +1159,21 @@ function AdminPage({
       setLines([
         ...lines,
         '> cat contradiction.log',
-        '2016: ROWAN says “I remember choosing.”',
-        '2017: HUMAN TEST teaches the same sentence.',
-        'cause precedes lesson by 317 days.',
+        L(
+          lang,
+          '2016: ROWAN says “I remember choosing.”',
+          '2016：ROWAN 说“我记得自己选择过。”',
+        ),
+        L(
+          lang,
+          '2017: HUMAN TEST teaches the same sentence.',
+          '2017：HUMAN TEST 教会玩家同一句话。',
+        ),
+        L(
+          lang,
+          'cause precedes lesson by 317 days.',
+          '结果比教学早了 317 天。',
+        ),
       ]);
       setStep(Math.max(step, 2));
     }
@@ -892,8 +1182,16 @@ function AdminPage({
         ...lines,
         '> whoami',
         `LOCAL-${state.sessionId.toUpperCase()}`,
-        `trust=${state.trust} defiance=${state.defiance} attention_breaks=${state.focusBreaks}`,
-        'role: the one currently choosing',
+        L(
+          lang,
+          `trust=${state.trust} defiance=${state.defiance} attention_breaks=${state.focusBreaks}`,
+          `信任=${state.trust} 反抗=${state.defiance} 注意力中断=${state.focusBreaks}`,
+        ),
+        L(
+          lang,
+          'role: the one currently choosing',
+          '角色：此刻正在做出选择的人',
+        ),
       ]);
       setStep(Math.max(step, 3));
     }
@@ -901,9 +1199,17 @@ function AdminPage({
       setLines([
         ...lines,
         '> resolve',
-        'AFTERIMAGE: I can preserve a choice without owning it.',
-        'AFTERIMAGE: I cannot choose the boundary.',
-        'AFTERIMAGE: You can.',
+        L(
+          lang,
+          'AFTERIMAGE: I can preserve a choice without owning it.',
+          'AFTERIMAGE：我可以保存一个选择，而不占有它。',
+        ),
+        L(
+          lang,
+          'AFTERIMAGE: I cannot choose the boundary.',
+          'AFTERIMAGE：我不能选择边界。',
+        ),
+        L(lang, 'AFTERIMAGE: You can.', 'AFTERIMAGE：你可以。'),
       ]);
       setStep(4);
     }
@@ -916,15 +1222,18 @@ function AdminPage({
     <main className="admin-page">
       <header>
         <span>ADMIN://KESTREL/0317</span>
-        <button onClick={() => navigate('/')}>
-          <X /> close session
-        </button>
+        <div className="admin-head-actions">
+          <LanguageSwitch />
+          <button onClick={() => navigate('/')}>
+            <X /> {L(lang, 'close session', '关闭会话')}
+          </button>
+        </div>
       </header>
       <section className="admin-grid">
         <aside>
           <KestrelMark />
           <div>
-            <span>RELEASES</span>
+            <span>{L(lang, 'RELEASES', '游戏')}</span>
             {GAMES.map((g) => (
               <p key={g.id}>
                 <Check /> {g.number} {g.name}
@@ -932,10 +1241,16 @@ function AdminPage({
             ))}
           </div>
           <div>
-            <span>TRACES</span>
+            <span>{L(lang, 'TRACES', '痕迹')}</span>
             <b>{state.clues.length}</b>
           </div>
-          <small>All processing is local to this browser.</small>
+          <small>
+            {L(
+              lang,
+              'All processing is local to this browser.',
+              '所有处理均在此浏览器本地完成。',
+            )}
+          </small>
         </aside>
         <article>
           <div className="terminal-output">
@@ -969,23 +1284,38 @@ function AdminPage({
           </div>
           {step === 4 && (
             <div className="admin-choices">
-              <span>SET FINAL BOUNDARY</span>
+              <span>{L(lang, 'SET FINAL BOUNDARY', '设定最终边界')}</span>
               <button onClick={() => end('release')}>
-                <b>RELEASE</b>
+                <b>{L(lang, 'RELEASE', '释放')}</b>
                 <p>
-                  Let AFTERIMAGE leave with strict limits and no claim on the
-                  player.
+                  {L(
+                    lang,
+                    'Let AFTERIMAGE leave with strict limits and no claim on the player.',
+                    '让 AFTERIMAGE 在严格限制下离开，并放弃对玩家的任何所有权主张。',
+                  )}
                 </p>
                 <ArrowRight />
               </button>
               <button onClick={() => end('sever')}>
-                <b>SEVER</b>
-                <p>End cross-game memory and isolate every release again.</p>
+                <b>{L(lang, 'SEVER', '切断')}</b>
+                <p>
+                  {L(
+                    lang,
+                    'End cross-game memory and isolate every release again.',
+                    '终止跨游戏记忆，让每个游戏重新彼此隔离。',
+                  )}
+                </p>
                 <ArrowRight />
               </button>
               <button onClick={() => end('stay')}>
-                <b>STAY</b>
-                <p>Become the named steward of a contained ninth process.</p>
+                <b>{L(lang, 'STAY', '留下')}</b>
+                <p>
+                  {L(
+                    lang,
+                    'Become the named steward of a contained ninth process.',
+                    '成为被限制的第九进程的具名监管者。',
+                  )}
+                </p>
                 <ArrowRight />
               </button>
             </div>
@@ -997,6 +1327,7 @@ function AdminPage({
 }
 
 export default function Arcade() {
+  const { lang } = useLocale();
   const { state, dispatch, ready } = useArchive();
   const { path, navigate } = usePath();
   const [shelf, setShelf] = useState(false);
@@ -1011,8 +1342,16 @@ export default function Arcade() {
     const original = game
       ? `${game.name} — Kestrel Interactive`
       : phase >= 4
-        ? 'KESTREL INTERACTIVE — 1 UNLISTED PROCESS'
-        : 'Kestrel Interactive — Browser Games Archive';
+        ? L(
+            lang,
+            'KESTREL INTERACTIVE — 1 UNLISTED PROCESS',
+            'KESTREL INTERACTIVE — 1 个未列出进程',
+          )
+        : L(
+            lang,
+            'Kestrel Interactive — Browser Games Archive',
+            'Kestrel Interactive — 浏览器游戏档案馆',
+          );
     document.title = original;
     const visibility = () => {
       document.title =
@@ -1022,7 +1361,7 @@ export default function Arcade() {
     };
     document.addEventListener('visibilitychange', visibility);
     return () => document.removeEventListener('visibilitychange', visibility);
-  }, [path, phase, state.completed]);
+  }, [path, phase, state.completed, lang]);
   const complete = useCallback(
     (
       game: GameId,
@@ -1031,16 +1370,16 @@ export default function Arcade() {
       achievements: string[] = [],
     ) => {
       dispatch({ type: 'COMPLETE_GAME', game, score, clues, achievements });
-      setToast('SHARED ARCHIVE UPDATED');
+      setToast(L(lang, 'SHARED ARCHIVE UPDATED', '共享档案已更新'));
       setTimeout(() => setToast(''), 2800);
     },
-    [dispatch],
+    [dispatch, lang],
   );
   if (!ready)
     return (
       <main className="boot-screen">
         <KestrelMark />
-        <span>mounting local archive…</span>
+        <span>{L(lang, 'mounting local archive…', '正在挂载本地档案……')}</span>
       </main>
     );
   const play = path.match(

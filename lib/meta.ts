@@ -220,27 +220,122 @@ export function applyMetaEvent(state: MetaState, event: MetaEvent): MetaState {
   return next;
 }
 
-export const ACHIEVEMENTS: Record<string, { name: string; hint: string }> = {
-  'first-contact': { name: 'First Contact', hint: 'Open the archive.' },
-  'finished-click': { name: 'Muscle Memory', hint: 'Finish CLICK.' },
-  'clean-click': { name: 'No Misclicks', hint: 'Finish CLICK without a miss.' },
-  'finished-404': { name: 'Found', hint: 'Escape 404.' },
-  'cache-diver': { name: 'Cache Diver', hint: 'Recover every fragment.' },
-  'finished-terms': { name: 'Fine Print', hint: 'Survive the agreement.' },
+export const ACHIEVEMENTS: Record<
+  string,
+  { name: string; hint: string; nameZh: string; hintZh: string }
+> = {
+  'first-contact': {
+    name: 'First Contact',
+    hint: 'Open the archive.',
+    nameZh: '第一次接触',
+    hintZh: '打开档案馆。',
+  },
+  'finished-click': {
+    name: 'Muscle Memory',
+    hint: 'Finish CLICK.',
+    nameZh: '肌肉记忆',
+    hintZh: '完成 CLICK。',
+  },
+  'clean-click': {
+    name: 'No Misclicks',
+    hint: 'Finish CLICK without a miss.',
+    nameZh: '零误触',
+    hintZh: '不失误完成 CLICK。',
+  },
+  'finished-404': {
+    name: 'Found',
+    hint: 'Escape 404.',
+    nameZh: '已找到',
+    hintZh: '逃出 404。',
+  },
+  'cache-diver': {
+    name: 'Cache Diver',
+    hint: 'Recover every fragment.',
+    nameZh: '缓存潜水员',
+    hintZh: '恢复所有碎片。',
+  },
+  'finished-terms': {
+    name: 'Fine Print',
+    hint: 'Survive the agreement.',
+    nameZh: '小字条款',
+    hintZh: '从协议中活下来。',
+  },
   'counter-signed': {
     name: 'Counter-signed',
     hint: 'Refuse the right things.',
+    nameZh: '反签署',
+    hintZh: '拒绝该拒绝的东西。',
   },
-  'finished-human': { name: 'Probably Human', hint: 'Pass the human test.' },
-  'finished-window': { name: 'Four Corners', hint: 'Synchronize WINDOW.' },
-  'finished-look': { name: 'Held Gaze', hint: "Finish DON'T LOOK AWAY." },
-  unblinking: { name: 'Unblinking', hint: 'Do not break focus.' },
-  'finished-quiz': { name: 'Seven Answers', hint: 'Pass THE QUIZ.' },
-  'perfect-recall': { name: 'Perfect Recall', hint: 'Answer every question.' },
-  'finished-patch': { name: 'Rollback Complete', hint: 'Repair PATCH NOTES.' },
-  'root-access': { name: 'Root Access', hint: 'Open what was never linked.' },
-  'full-shelf': { name: 'Complete Shelf', hint: 'Finish all eight releases.' },
-  'ending-release': { name: 'Open Window', hint: 'Choose release.' },
-  'ending-sever': { name: 'Cold Boot', hint: 'Choose severance.' },
-  'ending-stay': { name: 'Night Shift', hint: 'Choose to stay.' },
+  'finished-human': {
+    name: 'Probably Human',
+    hint: 'Pass the human test.',
+    nameZh: '大概是人类',
+    hintZh: '通过人类测试。',
+  },
+  'finished-window': {
+    name: 'Four Corners',
+    hint: 'Synchronize WINDOW.',
+    nameZh: '四个角落',
+    hintZh: '同步 WINDOW。',
+  },
+  'finished-look': {
+    name: 'Held Gaze',
+    hint: "Finish DON'T LOOK AWAY.",
+    nameZh: '保持凝视',
+    hintZh: '完成 DON’T LOOK AWAY。',
+  },
+  unblinking: {
+    name: 'Unblinking',
+    hint: 'Do not break focus.',
+    nameZh: '一眨不眨',
+    hintZh: '不要中断专注。',
+  },
+  'finished-quiz': {
+    name: 'Seven Answers',
+    hint: 'Pass THE QUIZ.',
+    nameZh: '七个答案',
+    hintZh: '通过 THE QUIZ。',
+  },
+  'perfect-recall': {
+    name: 'Perfect Recall',
+    hint: 'Answer every question.',
+    nameZh: '完美回忆',
+    hintZh: '答对所有问题。',
+  },
+  'finished-patch': {
+    name: 'Rollback Complete',
+    hint: 'Repair PATCH NOTES.',
+    nameZh: '回滚完成',
+    hintZh: '修复 PATCH NOTES。',
+  },
+  'root-access': {
+    name: 'Root Access',
+    hint: 'Open what was never linked.',
+    nameZh: '根权限',
+    hintZh: '打开从未被链接的地方。',
+  },
+  'full-shelf': {
+    name: 'Complete Shelf',
+    hint: 'Finish all eight releases.',
+    nameZh: '完整藏品',
+    hintZh: '完成全部八个游戏。',
+  },
+  'ending-release': {
+    name: 'Open Window',
+    hint: 'Choose release.',
+    nameZh: '打开的窗口',
+    hintZh: '选择释放。',
+  },
+  'ending-sever': {
+    name: 'Cold Boot',
+    hint: 'Choose severance.',
+    nameZh: '冷启动',
+    hintZh: '选择切断。',
+  },
+  'ending-stay': {
+    name: 'Night Shift',
+    hint: 'Choose to stay.',
+    nameZh: '夜班',
+    hintZh: '选择留下。',
+  },
 };

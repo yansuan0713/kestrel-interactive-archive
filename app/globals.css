@@ -29,12 +29,33 @@ body {
   background: var(--paper);
   font-family: var(--font-sans), Arial, sans-serif;
 }
+html[data-language='zh'] body {
+  font-family:
+    var(--font-sans), 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC',
+    sans-serif;
+}
 button,
 a {
   color: inherit;
 }
 button {
   font: inherit;
+}
+.language-switch {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: 700 9px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.language-switch:hover,
+.language-switch:focus-visible {
+  color: var(--red);
 }
 a {
   text-decoration: none;
@@ -873,6 +894,21 @@ a {
   gap: 5px;
   font: inherit;
   text-transform: uppercase;
+}
+.game-head-actions,
+.simple-head-meta,
+.admin-head-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.game-head .language-switch,
+.simple-head .language-switch,
+.admin-page > header .language-switch {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid currentColor;
 }
 .close-game {
   justify-self: end;
@@ -2110,6 +2146,7 @@ a {
   color: inherit;
   display: flex;
   gap: 6px;
+  cursor: pointer;
 }
 .admin-grid {
   display: grid;

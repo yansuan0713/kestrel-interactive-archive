@@ -11,8 +11,8 @@ const serif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: 'Kestrel Interactive — Browser Games Archive',
-  description: 'Eight small browser games from an independent studio archive.',
+  title: 'Kestrel Interactive — 独立浏览器游戏档案馆',
+  description: '八款彼此独立、却共享同一段隐藏叙事的浏览器游戏。',
   openGraph: {
     title: 'Kestrel Interactive — Small Games. Long Shadows.',
     description:
