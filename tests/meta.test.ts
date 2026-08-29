@@ -6,6 +6,7 @@ import {
   createInitialState,
   hiddenRouteUnlocked,
   isAdminReady,
+  normalizeState,
   portalPhase,
 } from '../lib/meta.ts';
 
@@ -64,4 +65,69 @@ void test('ending collection supports multiple endings without duplication', () 
   state = applyMetaEvent(state, { type: 'ENDING', ending: 'sever' });
   state = applyMetaEvent(state, { type: 'ENDING', ending: 'release' });
   assert.deepEqual(state.endings, ['sever', 'release']);
+});
+
+void test('malformed persisted state falls back field by field', () => {
+  const state = normalizeState({
+    version: 3,
+    sessionId: { forged: true },
+    completed: 'click',
+    scores: { click: Number.NaN, terms: 42, quiz: 'seven' },
+    plays: null,
+    clues: { length: 99 },
+    achievements: 'root-access',
+    eventLog: [1, 'valid:event', null],
+    termsChoice: 'owner',
+    humanScore: Number.POSITIVE_INFINITY,
+    windowCode: { value: '0317' },
+    focusBreaks: '4',
+    quizScore: null,
+    trust: Number.NaN,
+    defiance: {},
+    patchRestored: 'true',
+    adminUnlocked: 1,
+    endings: 'release',
+    portalVisits: Number.NEGATIVE_INFINITY,
+  });
+
+  assert.deepEqual(state.completed, []);
+  assert.deepEqual(state.scores, { terms: 42 });
+  assert.deepEqual(state.plays, {});
+  assert.deepEqual(state.clues, []);
+  assert.deepEqual(state.achievements, ['first-contact']);
+  assert.deepEqual(state.eventLog, ['valid:event']);
+  assert.equal(state.termsChoice, 'none');
+  assert.equal(state.humanScore, 0);
+  assert.equal(state.windowCode, '');
+  assert.equal(state.focusBreaks, 0);
+  assert.equal(state.quizScore, 0);
+  assert.equal(state.trust, 0);
+  assert.equal(state.defiance, 0);
+  assert.equal(state.patchRestored, false);
+  assert.equal(state.adminUnlocked, false);
+  assert.deepEqual(state.endings, []);
+  assert.equal(state.portalVisits, 0);
+  assert.equal(portalPhase(state), 0);
+});
+
+void test('normalization filters and deduplicates completed games', () => {
+  const state = normalizeState({
+    version: 3,
+    sessionId: 'duplicates',
+    completed: ['click', 'click', 'not-a-game', '404', 404, '404'],
+  });
+
+  assert.deepEqual(state.completed, ['click', '404']);
+  assert.equal(portalPhase(state), 1);
+});
+
+void test('normalization replaces empty or unsafe session identifiers', () => {
+  for (const sessionId of ['', '   ', '../admin', 'x'.repeat(65), 317]) {
+    const state = normalizeState({ version: 3, sessionId });
+    assert.equal(state.sessionId, 'local');
+  }
+  assert.equal(
+    normalizeState({ version: 3, sessionId: 'safe_session-0317' }).sessionId,
+    'safe_session-0317',
+  );
 });

@@ -1,6 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import {
   ArrowDown,
   ArrowLeft,
@@ -25,6 +31,15 @@ type GameProps = {
     achievements?: string[],
   ) => void;
   exit: () => void;
+};
+
+const activateFromKeyboard = (
+  event: KeyboardEvent<HTMLButtonElement>,
+  action: () => void,
+) => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  action();
 };
 
 function GameFrame({
@@ -387,21 +402,39 @@ export function FourOhFourGame(props: GameProps) {
   const current = maze[node];
   const localized = lang === 'zh' ? mazeZh[node] : current;
   useEffect(() => {
-    const onPop = () => {
+    const readNode = () => {
       const found = new URLSearchParams(window.location.search).get('node');
-      if (found && maze[found]) setNode(found);
+      return found && Object.prototype.hasOwnProperty.call(maze, found)
+        ? found
+        : 'start';
     };
+    const syncInitialNode = () => {
+      const found = readNode();
+      setNode(found);
+      setTrail([found]);
+    };
+    const onPop = () => {
+      const found = readNode();
+      setNode(found);
+      setTrail((currentTrail) => [...currentTrail, found].slice(-6));
+    };
+    syncInitialNode();
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
   const go = (to: string) => {
+    if (!Object.prototype.hasOwnProperty.call(maze, to)) return;
     if (to === 'exit' && fragments.length < 3) return;
     setNode(to);
-    setTrail([...trail, to].slice(-6));
+    setTrail((currentTrail) => [...currentTrail, to].slice(-6));
     window.history.pushState({ mazeNode: to }, '', `/play/404?node=${to}`);
     const fragment = maze[to].fragment;
     if (fragment && !fragments.includes(fragment))
-      setFragments([...fragments, fragment]);
+      setFragments((currentFragments) =>
+        currentFragments.includes(fragment)
+          ? currentFragments
+          : [...currentFragments, fragment],
+      );
     if (to === 'exit') {
       setDone(true);
       props.dispatch({
@@ -435,12 +468,15 @@ export function FourOhFourGame(props: GameProps) {
           <i />
           <i />
         </div>
-        <button onClick={() => window.history.back()} aria-label="Browser back">
+        <button
+          onClick={() => window.history.back()}
+          aria-label={L(lang, 'Browser back', '浏览器后退')}
+        >
           <ArrowLeft size={14} />
         </button>
         <button
           onClick={() => window.history.forward()}
-          aria-label="Browser forward"
+          aria-label={L(lang, 'Browser forward', '浏览器前进')}
         >
           <ArrowRight size={14} />
         </button>
@@ -467,7 +503,7 @@ export function FourOhFourGame(props: GameProps) {
           </span>
           <h2>{localized.title}</h2>
           <p>{localized.copy}</p>
-          {current.fragment && (
+          {current.fragment && fragments.includes(current.fragment) && (
             <mark>
               {L(lang, 'FRAGMENT', '碎片')} {current.fragment}{' '}
               {L(lang, 'RECOVERED', '已恢复')}
@@ -494,7 +530,7 @@ export function FourOhFourGame(props: GameProps) {
               )}
             </small>
           )}
-          {done && (
+          {done && node === 'exit' && (
             <button className="return-button" onClick={props.exit}>
               {L(lang, 'RETURN TO ARCHIVE', '返回档案馆')}
             </button>
@@ -1066,16 +1102,56 @@ export function WindowGame(props: GameProps) {
               className="pane-controls"
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <button onClick={() => nudge(i, -3, 0)}>
+              <button
+                onClick={() => nudge(i, -3, 0)}
+                onKeyDown={(event) =>
+                  activateFromKeyboard(event, () => nudge(i, -3, 0))
+                }
+                aria-label={L(
+                  lang,
+                  `Move ${pane.label} left`,
+                  `向左移动 ${pane.label} 窗口`,
+                )}
+              >
                 <ArrowLeft />
               </button>
-              <button onClick={() => nudge(i, 0, -3)}>
+              <button
+                onClick={() => nudge(i, 0, -3)}
+                onKeyDown={(event) =>
+                  activateFromKeyboard(event, () => nudge(i, 0, -3))
+                }
+                aria-label={L(
+                  lang,
+                  `Move ${pane.label} up`,
+                  `向上移动 ${pane.label} 窗口`,
+                )}
+              >
                 <ArrowUp />
               </button>
-              <button onClick={() => nudge(i, 0, 3)}>
+              <button
+                onClick={() => nudge(i, 0, 3)}
+                onKeyDown={(event) =>
+                  activateFromKeyboard(event, () => nudge(i, 0, 3))
+                }
+                aria-label={L(
+                  lang,
+                  `Move ${pane.label} down`,
+                  `向下移动 ${pane.label} 窗口`,
+                )}
+              >
                 <ArrowDown />
               </button>
-              <button onClick={() => nudge(i, 3, 0)}>
+              <button
+                onClick={() => nudge(i, 3, 0)}
+                onKeyDown={(event) =>
+                  activateFromKeyboard(event, () => nudge(i, 3, 0))
+                }
+                aria-label={L(
+                  lang,
+                  `Move ${pane.label} right`,
+                  `向右移动 ${pane.label} 窗口`,
+                )}
+              >
                 <ArrowRight />
               </button>
             </div>
@@ -1601,12 +1677,31 @@ export function PatchGame(props: GameProps) {
                   : L(lang, 'ROLLBACK', '回滚')}
               </button>
               <div className="order-buttons">
-                <button onClick={() => move(i, -1)} disabled={i === 0}>
+                <button
+                  onClick={() => move(i, -1)}
+                  onKeyDown={(event) =>
+                    activateFromKeyboard(event, () => move(i, -1))
+                  }
+                  disabled={i === 0}
+                  aria-label={L(
+                    lang,
+                    `Move ${line.title} up`,
+                    `上移“${line.titleZh}”`,
+                  )}
+                >
                   <ArrowUp />
                 </button>
                 <button
                   onClick={() => move(i, 1)}
+                  onKeyDown={(event) =>
+                    activateFromKeyboard(event, () => move(i, 1))
+                  }
                   disabled={i === lines.length - 1}
+                  aria-label={L(
+                    lang,
+                    `Move ${line.title} down`,
+                    `下移“${line.titleZh}”`,
+                  )}
                 >
                   <ArrowDown />
                 </button>

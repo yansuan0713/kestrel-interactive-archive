@@ -55,6 +55,34 @@ export type MetaEvent =
 
 const unique = <T>(values: T[]) => [...new Set(values)];
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const finiteNumber = (value: unknown, fallback: number) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+
+const stringArray = (value: unknown, fallback: string[] = []) =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : fallback;
+
+const gameNumbers = (value: unknown) => {
+  if (!isRecord(value)) return {};
+  return Object.fromEntries(
+    GAME_IDS.flatMap((game) => {
+      const entry = value[game];
+      return typeof entry === 'number' && Number.isFinite(entry)
+        ? [[game, entry]]
+        : [];
+    }),
+  ) as Partial<Record<GameId, number>>;
+};
+
+const safeSessionId = (value: unknown, fallback: string) =>
+  typeof value === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(value)
+    ? value
+    : fallback;
+
 export function createInitialState(seed = 'local'): MetaState {
   return {
     version: 3,
@@ -81,29 +109,43 @@ export function createInitialState(seed = 'local'): MetaState {
 
 export function normalizeState(input: unknown): MetaState {
   const base = createInitialState();
-  if (!input || typeof input !== 'object') return base;
-  const raw = input as Partial<MetaState>;
+  if (!isRecord(input)) return base;
+  const raw = input;
+  const termsChoice =
+    raw.termsChoice === 'accepted' || raw.termsChoice === 'redacted'
+      ? raw.termsChoice
+      : 'none';
   return {
-    ...base,
-    ...raw,
     version: 3,
-    completed: (raw.completed ?? []).filter((id): id is GameId =>
-      GAME_IDS.includes(id as GameId),
-    ),
-    clues: unique(
-      (raw.clues ?? []).filter((x): x is string => typeof x === 'string'),
-    ),
-    achievements: unique(
-      (raw.achievements ?? []).filter(
-        (x): x is string => typeof x === 'string',
+    sessionId: safeSessionId(raw.sessionId, base.sessionId),
+    completed: unique(
+      stringArray(raw.completed).filter((id): id is GameId =>
+        GAME_IDS.includes(id as GameId),
       ),
     ),
-    eventLog: (raw.eventLog ?? [])
-      .filter((x): x is string => typeof x === 'string')
-      .slice(-40),
-    endings: unique(
-      (raw.endings ?? []).filter((x): x is string => typeof x === 'string'),
-    ),
+    scores: gameNumbers(raw.scores),
+    plays: gameNumbers(raw.plays),
+    clues: unique(stringArray(raw.clues)),
+    achievements: unique(stringArray(raw.achievements, base.achievements)),
+    eventLog: stringArray(raw.eventLog, base.eventLog).slice(-40),
+    termsChoice,
+    humanScore: finiteNumber(raw.humanScore, base.humanScore),
+    windowCode:
+      typeof raw.windowCode === 'string' ? raw.windowCode : base.windowCode,
+    focusBreaks: finiteNumber(raw.focusBreaks, base.focusBreaks),
+    quizScore: finiteNumber(raw.quizScore, base.quizScore),
+    trust: finiteNumber(raw.trust, base.trust),
+    defiance: finiteNumber(raw.defiance, base.defiance),
+    patchRestored:
+      typeof raw.patchRestored === 'boolean'
+        ? raw.patchRestored
+        : base.patchRestored,
+    adminUnlocked:
+      typeof raw.adminUnlocked === 'boolean'
+        ? raw.adminUnlocked
+        : base.adminUnlocked,
+    endings: unique(stringArray(raw.endings)),
+    portalVisits: finiteNumber(raw.portalVisits, base.portalVisits),
   };
 }
 

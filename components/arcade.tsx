@@ -36,9 +36,11 @@ const STORAGE_KEY = 'kestrel.archive.v3';
 const GAMES: {
   id: GameId;
   name: string;
+  nameZh: string;
   copy: string;
   copyZh: string;
   maker: string;
+  makerZh: string;
   number: string;
   glyph: string;
   release: string;
@@ -46,9 +48,11 @@ const GAMES: {
   {
     id: 'click',
     name: 'CLICK',
+    nameZh: '点击',
     copy: 'A tiny game about a very big button.',
     copyZh: '一个关于巨大按钮的微小游戏。',
     maker: 'Dex Ferris',
+    makerZh: '德克斯·费里斯',
     number: '01',
     glyph: 'CL',
     release: '2011',
@@ -56,9 +60,11 @@ const GAMES: {
   {
     id: '404',
     name: '404',
+    nameZh: '页面未找到',
     copy: 'Get lost. Find what the web forgot.',
     copyZh: '迷路，然后找到网络遗忘之物。',
     maker: 'Mara Vale',
+    makerZh: '玛拉·维尔',
     number: '02',
     glyph: '04',
     release: '2012',
@@ -66,9 +72,11 @@ const GAMES: {
   {
     id: 'terms',
     name: 'TERMS & CONDITIONS',
+    nameZh: '条款与条件',
     copy: 'The legal thriller you already agreed to.',
     copyZh: '一部你早已同意出演的法律惊悚剧。',
     maker: 'N. Shore',
+    makerZh: '诺尔·肖尔',
     number: '03',
     glyph: 'T&C',
     release: '2013',
@@ -76,9 +84,11 @@ const GAMES: {
   {
     id: 'human',
     name: 'HUMAN TEST',
+    nameZh: '人类测试',
     copy: 'Three minutes to prove the obvious.',
     copyZh: '用三分钟证明一件显而易见的事。',
     maker: 'Mara Vale',
+    makerZh: '玛拉·维尔',
     number: '04',
     glyph: 'HU',
     release: '2014',
@@ -86,9 +96,11 @@ const GAMES: {
   {
     id: 'window',
     name: 'WINDOW',
+    nameZh: '窗口',
     copy: 'A puzzle that refuses to stay in one frame.',
     copyZh: '一道拒绝待在单个窗口里的谜题。',
     maker: 'Dex Ferris',
+    makerZh: '德克斯·费里斯',
     number: '05',
     glyph: 'WI',
     release: '2015',
@@ -96,9 +108,11 @@ const GAMES: {
   {
     id: 'look',
     name: "DON'T LOOK AWAY",
+    nameZh: '别移开视线',
     copy: 'Attention is the only currency.',
     copyZh: '注意力是唯一的货币。',
     maker: 'N. Shore',
+    makerZh: '诺尔·肖尔',
     number: '06',
     glyph: '◉',
     release: '2016',
@@ -106,9 +120,11 @@ const GAMES: {
   {
     id: 'quiz',
     name: 'THE QUIZ',
+    nameZh: '测验',
     copy: 'Seven questions. Some remember you.',
     copyZh: '七个问题，其中一些记得你。',
     maker: 'Studio Kestrel',
+    makerZh: 'Kestrel 工作室',
     number: '07',
     glyph: '?',
     release: '2017',
@@ -116,9 +132,11 @@ const GAMES: {
   {
     id: 'patch',
     name: 'PATCH NOTES',
+    nameZh: '补丁说明',
     copy: 'Fix the update before it fixes you.',
     copyZh: '在更新修正你之前，先修好它。',
     maker: 'Studio Kestrel',
+    makerZh: 'Kestrel 工作室',
     number: '08',
     glyph: '++',
     release: '2017',
@@ -617,12 +635,12 @@ function SearchPanel({
         'Rowan Kestrel — 已归档资料',
       ),
       path: '/dev/rowan',
-      keys: 'rowan process developer',
+      keys: 'rowan process developer 开发者 进程 已归档资料',
     },
     {
       label: L(lang, 'manifest.ks — cached file', 'manifest.ks — 缓存文件'),
       path: '/files/manifest.ks',
-      keys: 'manifest file 0317',
+      keys: 'manifest file 0317 清单 文件 缓存',
     },
     {
       label: L(
@@ -631,7 +649,7 @@ function SearchPanel({
         'last-session.txt — 已恢复',
       ),
       path: '/files/last-session.txt',
-      keys: 'last session afterimage',
+      keys: 'last session afterimage 上次 会话 恢复 文件',
     },
     {
       label: L(lang, 'ADMIN — unlisted', 'ADMIN — 未列出'),
@@ -641,10 +659,15 @@ function SearchPanel({
   ];
   const results = [
     ...GAMES.map((g) => ({
-      label: g.name,
+      label: lang === 'zh' ? `${g.name} · ${g.nameZh}` : g.name,
       path: `/play/${g.id}`,
-      keys: `${g.name} ${g.maker}`,
+      keys: `${g.name} ${g.nameZh} ${g.maker} ${g.makerZh} ${g.copy} ${g.copyZh} game browser 游戏 浏览器`,
     })),
+    {
+      label: L(lang, 'Studio directory', '工作室名录'),
+      path: '/studio',
+      keys: 'studio kestrel developer team 工作室 开发者 团队 名录',
+    },
     ...hidden,
   ].filter(
     (item) =>
