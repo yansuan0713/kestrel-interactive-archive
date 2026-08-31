@@ -11,19 +11,34 @@ const serif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    'https://kestrel-interactive-archive.qadgunn.chatgpt.site',
+  ),
   title: 'Kestrel Interactive — 独立浏览器游戏档案馆',
   description: '八款彼此独立、却共享同一段隐藏叙事的浏览器游戏。',
   openGraph: {
     title: 'Kestrel Interactive — Small Games. Long Shadows.',
     description:
-      'Eight small browser games from an independent studio archive.',
+      'Eight playable browser games share one hidden narrative and persistent local meta-state.',
     type: 'website',
+    locale: 'en_US',
+    alternateLocale: 'zh_CN',
+    siteName: 'Kestrel Interactive Archive',
+    images: [
+      {
+        url: '/og.png',
+        width: 1730,
+        height: 909,
+        alt: 'Kestrel Interactive — Small Games. Long Shadows.',
+      },
+    ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Kestrel Interactive — Small Games. Long Shadows.',
     description:
-      'Eight small browser games from an independent studio archive.',
+      'Eight playable browser games share one hidden narrative and persistent local meta-state.',
+    images: ['/og.png'],
   },
 };
 
