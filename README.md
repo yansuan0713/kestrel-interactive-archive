@@ -8,6 +8,8 @@
 
 `English / 简体中文` · `8 fully playable games` · `local-first` · `multiple endings`
 
+### [▶ 立即试玩 / PLAY NOW](https://kestrel-interactive-archive.qadgunn.chatgpt.site/)
+
 > 最好的入口是毫无准备地从首页开始。请不要先打开剧透文件。
 
 ## 这不只是八个小游戏
