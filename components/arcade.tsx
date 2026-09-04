@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,17 +14,21 @@ import {
   Radio,
   Search,
   Terminal,
+  Upload,
   X,
 } from 'lucide-react';
 import {
   ACHIEVEMENTS,
   GAME_IDS,
+  MAX_ARCHIVE_CAPSULE_SIZE,
   applyMetaEvent,
   createInitialState,
   hiddenRouteUnlocked,
   isAdminReady,
   normalizeState,
+  parseArchiveCapsule,
   portalPhase,
+  serializeArchiveCapsule,
   type GameId,
   type MetaEvent,
   type MetaState,
@@ -525,14 +529,52 @@ function Shelf({
   dispatch,
   close,
   navigate,
+  notify,
 }: {
   state: MetaState;
   dispatch: (e: MetaEvent) => void;
   close: () => void;
   navigate: (to: string) => void;
+  notify: (message: string) => void;
 }) {
   const { lang } = useLocale();
   const [confirm, setConfirm] = useState(false);
+  const importInput = useRef<HTMLInputElement>(null);
+
+  const exportCapsule = () => {
+    const url = URL.createObjectURL(
+      new Blob([serializeArchiveCapsule(state)], {
+        type: 'application/json',
+      }),
+    );
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `kestrel-archive-${state.sessionId}.json`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    notify(L(lang, 'ARCHIVE CAPSULE EXPORTED', '存档胶囊已导出'));
+  };
+
+  const importCapsule = async (file?: File) => {
+    if (!file) return;
+    try {
+      if (file.size > MAX_ARCHIVE_CAPSULE_SIZE)
+        throw new Error('Archive capsule too large');
+      const restored = parseArchiveCapsule(await file.text());
+      dispatch({ type: 'RESTORE', state: restored });
+      close();
+      notify(L(lang, 'ARCHIVE CAPSULE RESTORED', '存档胶囊已恢复'));
+    } catch {
+      notify(
+        L(
+          lang,
+          'CAPSULE REJECTED — CURRENT ARCHIVE UNCHANGED',
+          '胶囊已拒绝——当前存档未改变',
+        ),
+      );
+    }
+  };
+
   return (
     <dialog
       open
@@ -596,6 +638,40 @@ function Shelf({
             <Terminal /> {L(lang, 'Administrator route', '管理员路径')}
           </button>
         )}
+        <section className="capsule-tools">
+          <h3>{L(lang, 'ARCHIVE CAPSULE', '存档胶囊')}</h3>
+          <p>
+            {L(
+              lang,
+              'Move this local session between browsers without an account.',
+              '无需账号，在不同浏览器之间转移这份本地会话。',
+            )}
+          </p>
+          <div>
+            <button type="button" onClick={exportCapsule}>
+              <Download /> {L(lang, 'Export', '导出')}
+            </button>
+            <button type="button" onClick={() => importInput.current?.click()}>
+              <Upload /> {L(lang, 'Import', '导入')}
+            </button>
+            <input
+              ref={importInput}
+              hidden
+              type="file"
+              accept="application/json,.json"
+              aria-label={L(
+                lang,
+                'Choose an archive capsule to import',
+                '选择要导入的存档胶囊',
+              )}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = '';
+                void importCapsule(file);
+              }}
+            />
+          </div>
+        </section>
         <footer>
           <span>
             {state.clues.length} {L(lang, 'trace fragments', '个痕迹碎片')} ·{' '}
@@ -1385,6 +1461,13 @@ export default function Arcade() {
     document.addEventListener('visibilitychange', visibility);
     return () => document.removeEventListener('visibilitychange', visibility);
   }, [path, phase, state.completed, lang]);
+  const notify = useCallback((message: string) => {
+    setToast(message);
+    window.setTimeout(
+      () => setToast((current) => (current === message ? '' : current)),
+      2800,
+    );
+  }, []);
   const complete = useCallback(
     (
       game: GameId,
@@ -1393,10 +1476,9 @@ export default function Arcade() {
       achievements: string[] = [],
     ) => {
       dispatch({ type: 'COMPLETE_GAME', game, score, clues, achievements });
-      setToast(L(lang, 'SHARED ARCHIVE UPDATED', '共享档案已更新'));
-      setTimeout(() => setToast(''), 2800);
+      notify(L(lang, 'SHARED ARCHIVE UPDATED', '共享档案已更新'));
     },
-    [dispatch, lang],
+    [dispatch, lang, notify],
   );
   if (!ready)
     return (
@@ -1467,6 +1549,7 @@ export default function Arcade() {
           dispatch={dispatch}
           navigate={navigate}
           close={() => setShelf(false)}
+          notify={notify}
         />
       )}{' '}
       {search && (

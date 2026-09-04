@@ -2,12 +2,15 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   GAME_IDS,
+  MAX_ARCHIVE_CAPSULE_SIZE,
   applyMetaEvent,
   createInitialState,
   hiddenRouteUnlocked,
   isAdminReady,
   normalizeState,
+  parseArchiveCapsule,
   portalPhase,
+  serializeArchiveCapsule,
 } from '../lib/meta.ts';
 
 void test('game completion is idempotent and preserves the best score', () => {
@@ -130,4 +133,46 @@ void test('normalization replaces empty or unsafe session identifiers', () => {
     normalizeState({ version: 3, sessionId: 'safe_session-0317' }).sessionId,
     'safe_session-0317',
   );
+});
+
+void test('archive capsules round-trip normalized progress', () => {
+  let state = createInitialState('portable_0317');
+  state = applyMetaEvent(state, {
+    type: 'COMPLETE_GAME',
+    game: '404',
+    score: 3,
+    clues: ['404/cache-17'],
+  });
+
+  const restored = parseArchiveCapsule(serializeArchiveCapsule(state));
+  assert.deepEqual(restored, state);
+});
+
+void test('invalid archive capsules are rejected before replacing progress', () => {
+  for (const source of [
+    '',
+    '{broken',
+    JSON.stringify({ version: 1, state: { version: 3 } }),
+    JSON.stringify({
+      format: 'kestrel-archive-capsule',
+      version: 2,
+      state: { version: 3 },
+    }),
+  ]) {
+    assert.throws(() => parseArchiveCapsule(source));
+  }
+  assert.throws(() =>
+    parseArchiveCapsule('x'.repeat(MAX_ARCHIVE_CAPSULE_SIZE + 1)),
+  );
+});
+
+void test('restoring a capsule records the transfer in its own session', () => {
+  const imported = createInitialState('imported_session');
+  const restored = applyMetaEvent(createInitialState('current_session'), {
+    type: 'RESTORE',
+    state: imported,
+  });
+
+  assert.equal(restored.sessionId, 'imported_session');
+  assert.equal(restored.eventLog.at(-1), 'archive:restored');
 });

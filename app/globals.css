@@ -791,6 +791,45 @@ html[data-language='zh'] .masthead h1 i {
   justify-content: center;
   gap: 8px;
 }
+.capsule-tools {
+  margin: 0 28px 24px;
+  padding: 18px;
+  border: 1px dashed var(--ink);
+  background: color-mix(in srgb, var(--blue) 7%, transparent);
+}
+.shelf > section.capsule-tools {
+  padding: 18px;
+}
+.capsule-tools p {
+  margin: 0 0 14px;
+  font: 14px/1.45 var(--font-serif);
+}
+.capsule-tools > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.capsule-tools button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: 700 11px var(--font-mono);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.capsule-tools button:hover,
+.capsule-tools button:focus-visible {
+  background: var(--ink);
+  color: var(--acid);
+}
+.capsule-tools svg {
+  width: 15px;
+}
 .shelf > footer {
   padding: 20px 28px;
   border-top: 1px solid;

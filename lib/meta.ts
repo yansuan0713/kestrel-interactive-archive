@@ -51,7 +51,11 @@ export type MetaEvent =
   | { type: 'PATCH_RESTORED' }
   | { type: 'ADJUST'; trust?: number; defiance?: number }
   | { type: 'ENDING'; ending: string }
+  | { type: 'RESTORE'; state: unknown }
   | { type: 'RESET' };
+
+export const ARCHIVE_CAPSULE_FORMAT = 'kestrel-archive-capsule';
+export const MAX_ARCHIVE_CAPSULE_SIZE = 1_000_000;
 
 const unique = <T>(values: T[]) => [...new Set(values)];
 
@@ -149,6 +153,41 @@ export function normalizeState(input: unknown): MetaState {
   };
 }
 
+export function serializeArchiveCapsule(state: MetaState) {
+  return JSON.stringify(
+    {
+      format: ARCHIVE_CAPSULE_FORMAT,
+      version: 1,
+      state: normalizeState(state),
+    },
+    null,
+    2,
+  );
+}
+
+export function parseArchiveCapsule(source: string): MetaState {
+  if (!source || source.length > MAX_ARCHIVE_CAPSULE_SIZE)
+    throw new Error('Invalid archive capsule');
+
+  let capsule: unknown;
+  try {
+    capsule = JSON.parse(source);
+  } catch {
+    throw new Error('Invalid archive capsule');
+  }
+
+  if (
+    !isRecord(capsule) ||
+    capsule.format !== ARCHIVE_CAPSULE_FORMAT ||
+    capsule.version !== 1 ||
+    !isRecord(capsule.state) ||
+    capsule.state.version !== 3
+  )
+    throw new Error('Invalid archive capsule');
+
+  return normalizeState(capsule.state);
+}
+
 export function isAdminReady(state: MetaState) {
   return (
     state.completed.length === GAME_IDS.length &&
@@ -178,6 +217,13 @@ export function hiddenRouteUnlocked(path: string, state: MetaState) {
 export function applyMetaEvent(state: MetaState, event: MetaEvent): MetaState {
   if (event.type === 'RESET')
     return createInitialState(`${Date.now().toString(36)}`);
+  if (event.type === 'RESTORE') {
+    const restored = normalizeState(event.state);
+    return {
+      ...restored,
+      eventLog: [...restored.eventLog, 'archive:restored'].slice(-40),
+    };
+  }
   const next: MetaState = { ...state, eventLog: [...state.eventLog] };
   const log = (value: string) => {
     next.eventLog = [...next.eventLog, value].slice(-40);
